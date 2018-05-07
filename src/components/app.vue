@@ -38,6 +38,7 @@
           :path-selectable="pathSelectable"
           :selectable-type="selectableType"
           :index="index"
+          :searchKey="searchKey"
           :current-deep="currentDeep + 1"
           @click="handleItemClick">
         </vue-json-pretty>
@@ -52,7 +53,7 @@
       </brackets-right>
     </template>
 
-    <template v-else>
+    <template v-else-if="!searchKey || (data + '').indexOf(searchKey) > -1">
       <div :class="{ 'vjs__not__lastIndex': index !== lastIndex }">
         <span v-if="isObject(parentData)">{{ index }}:</span>
         <!-- data 可能为 null, 因此界面展示转为字符串 -->
@@ -112,16 +113,27 @@
         type: Number,
         default: 1
       },
-      index: {}
+      index: {},
+      searchKey: {
+        type: String,
+        default: ''
+      }
     },
     data () {
       return {
-        visiable: this.currentDeep <= this.deep,
         treeContentBackground: 'transparent',
         checkboxVal: this.pathChecked.includes(this.path) // 复选框的值
       }
     },
     computed: {
+      visiable () {
+        // 仅当 searchKey 不为空时才开启筛选模式
+        if (this.searchKey) {
+          return JSON.stringify(this.data).indexOf(this.searchKey) > -1
+        } else {
+          return this.currentDeep <= this.deep
+        }
+      },
       // 获取当前 data 中最后一项的 key 或 索引, 便于界面判断是否添加 ","
       lastIndex () {
         if (Array.isArray(this.parentData)) {

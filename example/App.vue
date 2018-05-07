@@ -5,13 +5,17 @@
       <div class="block">
         <h3>JSON Input:</h3>
         <textarea v-model="val"></textarea>
+        <h3>SearchKey Input:</h3>
+        <textarea v-model="searchKey"></textarea>
       </div>
       <div class="block">
         <h3>JSON Tree:</h3>
         <vue-json-pretty
           :deep="deep"
           :data="json"
-          :path="'res'">
+          :path="'res'"
+          :searchKey="searchKey"
+        >
         </vue-json-pretty>
       </div>
     </div>
@@ -37,7 +41,9 @@
 
         <h3>Latest Click Result:</h3>
         <div>path: {{itemPath}}</div>
-        <div>data: <pre>{{itemData}}</pre></div>
+        <div>data:
+          <pre>{{itemData}}</pre>
+        </div>
       </div>
       <div class="block">
         <h3>JSON Tree:</h3>
@@ -47,70 +53,77 @@
           :path-checked="['res', 'res.c']"
           :path-selectable="((path, data) => typeof data !== 'number')"
           :selectable-type="selectableType"
-          @click="handleClick">
+          :searchKey="searchKey"
+          @click="handleClick"
+        >
         </vue-json-pretty>
       </div>
     </div>
-    <a style="position: fixed; right: 0; top: 0;" href="https://github.com/leezng/el-form-renderer" target="_blank"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
+    <a style="position: fixed; right: 0; top: 0;" href="https://github.com/leezng/el-form-renderer" target="_blank"><img
+      style="position: absolute; top: 0; right: 0; border: 0;"
+      src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67"
+      alt="Fork me on GitHub"
+      data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
   </div>
 </template>
 
 <script>
-import VueJsonPretty from 'src'
+  import VueJsonPretty from 'src'
 
-export default {
-  name: 'app',
-  components: {
-    VueJsonPretty
-  },
-  data () {
-    return {
-      val: '',
-      data: {
-        status: 200,
-        error: '',
-        data: [{
-          news_id: 51184,
-          title: 'iPhone X Review: Innovative future with real black technology',
-          source: 'Netease phone'
-        }, {
-          news_id: 51183,
-          title: 'Traffic paradise: How to design streets for people and unmanned vehicles in the future?',
-          source: 'Netease smart'
-        }, {
-          news_id: 51182,
-          title: 'Teslamask\'s American Business Relations: The government does not pay billions to build factories',
-          source: 'AI Finance'
-        }]
-      },
-      selectableType: 'both',
-      path: 'res',
-      deep: 3,
-      itemData: {},
-      itemPath: ''
-    }
-  },
-  created () {
-    this.val = JSON.stringify(this.data)
-  },
-  computed: {
-    json () {
-      try {
-        this.cache = JSON.parse(this.val)
-        return this.cache
-      } catch (err) {
-        return this.cache || this.data
+  export default {
+    name: 'app',
+    components: {
+      VueJsonPretty
+    },
+    data() {
+      return {
+        val: '',
+        searchKey: '',
+        data: {
+          status: 200,
+          error: '',
+          data: [{
+            news_id: 51184,
+            title: 'iPhone X Review: Innovative future with real black technology',
+            source: 'Netease phone'
+          }, {
+            news_id: 51183,
+            title: 'Traffic paradise: How to design streets for people and unmanned vehicles in the future?',
+            source: 'Netease smart'
+          }, {
+            news_id: 51182,
+            title: 'Teslamask\'s American Business Relations: The government does not pay billions to build factories',
+            source: 'AI Finance'
+          }]
+        },
+        selectableType: 'both',
+        path: 'res',
+        deep: 3,
+        itemData: {},
+        itemPath: ''
+      }
+    },
+    created() {
+      this.val = JSON.stringify(this.data)
+    },
+    computed: {
+      json() {
+        try {
+          this.cache = JSON.parse(this.val)
+          return this.cache
+        } catch (err) {
+          return this.cache || this.data
+        }
+      }
+    },
+    methods: {
+      handleClick(path, data, checked) {
+        console.log('click', path, data, checked)
+        this.itemPath = path
+        this.itemData = !data ? data + '' : data // 处理 data = null 的情况
       }
     }
-  },
-  methods: {
-    handleClick (path, data, checked) {
-      console.log('click', path, data, checked)
-      this.itemPath = path
-      this.itemData = !data ? data + '' : data // 处理 data = null 的情况
-    }
   }
-}
 </script>
 
 <style lang="less">
@@ -118,12 +131,14 @@ export default {
     margin: 0;
     background-color: #f9f9f9;
   }
+
   .example {
     position: relative;
     padding: 0 15px;
     margin: 0 auto;
     width: 1200px;
   }
+
   .example-box {
     margin: 0 -15px;
     overflow: hidden;
